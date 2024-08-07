@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+
+
+{% block content %}
+
+<h2>Your Profile</h2>
+{% if profile %}
+    <table class="table table-bordered">
+        <tr>
+            <th>Name</th>
+            <td>{{ profile.name }}</td>
+        </tr>
+        <tr>
+            <th>Category</th>
+            <td>{{ profile.category }}</td>
+        </tr>
+        <tr>
+            <th>Niche</th>
+            <td>{{ profile.niche }}</td>
+        </tr>
+        <tr>
+            <th>Reach</th>
+            <td>{{ profile.reach }}</td>
+        </tr>
+    </table>
+    <a href="{{ url_for('main.update_influencer_profile') }}">Update Profile</a>
+{% else %}
+    <p>No profile information available. <a href="{{ url_for('main.update_influencer_profile') }}">Create Profile</a></p>
+{% endif %}
+
+{% endblock %}

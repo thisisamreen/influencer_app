@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>{{ legend }}</h1>
+<form method="POST" action="{{ url_for(form_action, ad_request_id=ad_request_id) if ad_request_id else url_for(form_action) }}">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.campaign_id.label }} {{ form.campaign_id() }}
+    </div>
+    <div>
+        {{ form.influencer_id.label }} {{ form.influencer_id() }}
+    </div>
+    <div>
+        {{ form.messages.label }} {{ form.messages() }}
+    </div>
+    <div>
+        {{ form.requirements.label }} {{ form.requirements() }}
+    </div>
+    <div>
+        {{ form.payment_amount.label }} {{ form.payment_amount() }}
+    </div>
+    {% if form.status %}
+    <div>
+        {{ form.status.label }} {{ form.status() }}
+    </div>
+    {% endif %}
+    <div>
+        {{ form.submit() }}
+    </div>
+</form>
+{% endblock %}

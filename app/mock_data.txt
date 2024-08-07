@@ -1,0 +1,65 @@
+Mock Data
+Users:
+
+Admin User:
+username: admin
+email: admin@example.com
+password: adminpass
+role: admin
+
+
+Sponsor User:
+
+username: amreen
+email: amreen@example.com
+password: amr
+
+username: Sahil
+email: Sahil@example.com
+password: sahil
+
+username: sponsor
+email: sponsor@example.com
+password: sponsorpass
+role: sponsor
+company_name: ExampleCorp
+industry: Tech
+budget: 10000
+
+
+Influencer User:
+
+username: Nida
+email: nida@example.com
+password: nida
+
+username: influencer
+email: influencer@example.com
+password: influencerpass
+role: influencer
+Influencer Profile:
+
+user_id: <ID of the influencer user>
+name: Influencer One
+category: Tech
+niche: Gadgets
+reach: 50000
+Campaign:
+
+name: Tech Campaign
+description: A campaign to promote tech products
+category: Tech
+start_date: <Current date>
+end_date: 2024-12-31
+budget: 5000
+visibility: public
+sponsor_id: <ID of the sponsor user>
+goals: Promote our latest tech products
+Ad Request:
+
+campaign_id: <ID of the campaign>
+influencer_id: <ID of the influencer user>
+messages: Please promote our product in your next video
+requirements: Mention our product name and show its features
+payment_amount: 1000
+status: Pending

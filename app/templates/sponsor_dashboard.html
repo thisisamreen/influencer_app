@@ -1,0 +1,108 @@
+ {% extends "layout.html" %}
+
+{% block content %}
+<h1>Sponsor Dashboard</h1>
+<a href="{{ url_for('main.sponsor_profile') }}">Update Profile</a>
+
+<h2>Search Campaigns</h2>
+<form method="POST" action="{{ url_for('main.sponsor_dashboard') }}">
+    {{ search_form.hidden_tag() }}
+    <div>
+        {{ search_form.search.label }} {{ search_form.search() }}
+        {{ search_form.submit() }}
+    </div>
+</form>
+
+<h2>Search Ad Requests</h2>
+<form method="POST" action="{{ url_for('main.search_ad_requests') }}">
+    {{ search_form.hidden_tag() }}
+    <div>
+        {{ search_form.search.label }} {{ search_form.search() }}
+        {{ search_form.submit() }}
+    </div>
+</form>
+
+<h2>Search Influencers</h2>
+<form method="POST" action="{{ url_for('main.search_influencers') }}">
+    {{ influencer_search_form.hidden_tag() }}
+    <div>
+        {{ influencer_search_form.search.label }} {{ influencer_search_form.search() }}
+        {{ influencer_search_form.submit() }}
+    </div>
+</form>
+
+<h2>Your Campaigns</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Budget</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for campaign in campaigns %}
+        <tr>
+            <td>{{ campaign.name }}</td>
+            <td>{{ campaign.description }}</td>
+            <td>{{ campaign.start_date }}</td>
+            <td>{{ campaign.end_date }}</td>
+            <td>{{ campaign.budget }}</td>
+            <td>
+                <a href="{{ url_for('main.update_campaign', campaign_id=campaign.id) }}">Edit</a>
+                <form method="POST" action="{{ url_for('main.delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                    <input type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>Your Ad Requests</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Campaign</th>
+            <th>Influencer</th>
+            <th>Messages</th>
+            <th>Requirements</th>
+            <th>Payment Amount</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ad_request in ad_requests %}
+        <tr>
+            <td>{{ ad_request.campaign.name }}</td>
+            <td>{{ ad_request.influencer.username }}</td>
+            <td>{{ ad_request.messages }}</td>
+            <td>{{ ad_request.requirements }}</td>
+            <td>{{ ad_request.payment_amount }}</td>
+            <td>{{ ad_request.status }}</td>
+            <td>
+                {% if ad_request.negotiation_status == 'Open' %}
+                <form method="POST" action="{{ url_for('main.respond_to_proposal', ad_request_id=ad_request.id) }}" style="display:inline;">
+                    <input type="number" name="counter_amount" min="0" step="0.01" required>
+                    <input type="submit" name="action" value="Counter" class="btn btn-info">
+                    <input type="submit" name="action" value="Accept" class="btn btn-success" onclick="return confirm('Are you sure you want to accept this proposal?');">
+                    <input type="submit" name="action" value="Reject" class="btn btn-danger" onclick="return confirm('Are you sure you want to reject this proposal?');">
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<a href="{{ url_for('main.new_campaign') }}">Create New Campaign</a>
+
+<a href="{{ url_for('main.new_ad_request') }}">Create New Ad Request</a>
+<a href="{{ url_for('main.view_ad_requests') }}">View All Ad Requests</a>
+{% endblock %}

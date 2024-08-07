@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}Influencer Dashboard{% endblock %}
+
+{% block content %}
+<h1>Influencer Dashboard</h1>
+
+
+<h2>Search Public Campaigns</h2>
+<form method="POST" action="{{ url_for('main.search_campaigns') }}">
+    {{ campaign_search_form.hidden_tag() }}
+    <div>
+        {{ campaign_search_form.search.label }} {{ campaign_search_form.search() }}
+        {{ campaign_search_form.submit() }}
+    </div>
+</form>
+
+<h2>Your Ad Requests</h2>
+<table class="table table-bordered">
+    <tr>
+        <th>Campaign</th>
+        <th>Messages</th>
+        <th>Requirements</th>
+        <th>Payment Amount</th>
+        <th>Status</th>
+        <th>Negotiate Amount</th>
+    </tr>
+    {% for ad_request in ad_requests %}a
+    <tr>
+        <td>{{ ad_request.campaign.name }}</td>
+        <td>{{ ad_request.messages }}</td>
+        <td>{{ ad_request.requirements }}</td>
+        <td>{{ ad_request.payment_amount }}</td>
+        <td>
+            {% if ad_request.status == 'Negotiating' %}
+                Negotiating (Proposed: {{ ad_request.proposed_amount }})
+            {% else %}
+                {{ ad_request.status }}
+            {% endif %}
+        </td>
+        <td>
+            {% if ad_request.negotiation_status == 'Open' %}
+                <form method="POST" action="{{ url_for('main.accept_ad_request', ad_request_id=ad_request.id) }}" style="display:inline;">
+                    <input type="submit" value="Accept" class="btn btn-success" onclick="return confirm('Are you sure you want to accept this ad request?');">
+                </form>
+                <form method="POST" action="{{ url_for('main.reject_ad_request', ad_request_id=ad_request.id) }}" style="display:inline;">
+                    <input type="submit" value="Reject" class="btn btn-danger" onclick="return confirm('Are you sure you want to reject this ad request?');">
+                </form>
+                <form method="POST" action="{{ url_for('main.negotiate_ad_request', ad_request_id=ad_request.id) }}" style="display:inline;">
+                    <input type="number" name="payment_amount" min="0" step="0.01" required class="form-control">
+                    <input type="submit" value="Negotiate" class="btn btn-warning" onclick="return confirm('Are you sure you want to negotiate this ad request?');">
+                </form>
+            {% endif %}
+        </td>
+        
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

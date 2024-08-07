@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}Search Influencers{% endblock %}
+
+{% block content %}
+<h1>Search Influencers</h1>
+
+{% if influencers %}
+    <h2>Search Results</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Niche</th>
+            <th>Reach</th>
+        </tr>
+        {% for influencer in influencers %}
+        <tr>
+            <td>{{ influencer.profile.name }}</td>
+            <td>{{ influencer.profile.category }}</td>
+            <td>{{ influencer.profile.niche }}</td>
+            <td>{{ influencer.profile.reach }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+<a href="{{ url_for('main.sponsor_dashboard') }}">Back to Dashboard</a>
+{% endblock %}

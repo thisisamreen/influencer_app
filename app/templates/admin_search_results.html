@@ -1,0 +1,205 @@
+{% extends "layout.html" %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<h1>Search Results</h1>
+<!-- Dynamic Search Form -->
+<form class="form-inline my-2 my-lg-0" id="searchForm" action="{{ url_for('main.admin_search') }}" method="GET">
+    <div class="form-group mb-3">
+        <label for="searchType">Search Type:</label>
+        <select class="form-control" id="searchType" name="search_type" onchange="updateSearchFields()">
+            
+            <option value="influencer">Influencer</option>
+            <option value="sponsor">Sponsor</option>
+            <option value="campaign">Campaign</option>
+        </select>
+    </div>
+    <div id="dynamicFields" class="form-group mb-3"></div>
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+{% if results.influencers %}
+    <h2>Influencers</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Niche</th>
+                <th>Category</th>
+                <th>Flagged</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in results.influencers %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.niche }}</td>
+                <td>{{ user.category }}</td>
+                <td>{{ 'Yes' if user.is_flagged else 'No' }}</td>
+                <td>
+                    <button class="btn btn-info" data-toggle="modal" data-target="#viewUserModal{{ user.id }}">View</button>
+                    <a href="{{ url_for('main.update_user', user_id=user.id) }}" class="btn btn-warning">Edit</a>
+                    <form method="POST" action="{{ url_for('main.delete_user', user_id=user.id) }}" style="display:inline;">
+                        <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure?');">
+                    </form>
+                </td>
+            </tr>
+
+            <!-- Modal -->
+            <div class="modal fade" id="viewUserModal{{ user.id }}" tabindex="-1" aria-labelledby="viewUserModalLabel{{ user.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="viewUserModalLabel{{ user.id }}">User Details</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Username:</strong> {{ user.username }}</p>
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                            <p><strong>Niche:</strong> {{ user.niche }}</p>
+                            <p><strong>Category:</strong> {{ user.category }}</p>
+                            <p><strong>Flagged:</strong> {{ 'Yes' if user.is_flagged else 'No' }}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+{% if results.sponsors %}
+    <h2>Sponsors</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Company</th>
+                <th>Industry</th>
+                <th>Flagged</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in results.sponsors %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.company_name }}</td>
+                <td>{{ user.industry }}</td>
+                <td>{{ 'Yes' if user.is_flagged else 'No' }}</td>
+                <td>
+                    <button class="btn btn-info" data-toggle="modal" data-target="#viewUserModal{{ user.id }}">View</button>
+                    <a href="{{ url_for('main.update_user', user_id=user.id) }}" class="btn btn-warning">Edit</a>
+                    <form method="POST" action="{{ url_for('main.delete_user', user_id=user.id) }}" style="display:inline;">
+                        <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure?');">
+                    </form>
+                </td>
+            </tr>
+
+            <!-- Modal -->
+            <div class="modal fade" id="viewUserModal{{ user.id }}" tabindex="-1" aria-labelledby="viewUserModalLabel{{ user.id }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="viewUserModalLabel{{ user.id }}">User Details</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Username:</strong> {{ user.username }}</p>
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                            <p><strong>Company:</strong> {{ user.company_name }}</p>
+                            <p><strong>Industry:</strong> {{ user.industry }}</p>
+                            <p><strong>Flagged:</strong> {{ 'Yes' if user.is_flagged else 'No' }}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+{% if results.campaigns %}
+    <h2>Campaigns</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Visibility</th>
+                <th>Active</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campaign in results.campaigns %}
+            <tr>
+                <td>{{ campaign.name }}</td>
+                <td>{{ campaign.category }}</td>
+                <td>{{ campaign.visibility }}</td>
+                <td>{{ 'Yes' if campaign.is_active else 'No' }}</td>
+                <td>
+                    <button class="btn btn-info" data-toggle="modal" data-target="#viewCampaignModal{{ campaign.id }}">View</button>
+                    <a href="{{ url_for('main.admin_update_campaign', campaign_id=campaign.id) }}" class="btn btn-warning">Edit</a>
+                    <form method="POST" action="{{ url_for('main.admin_delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                        <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure?');">
+                    </form>
+                </td>
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No results found.</p>
+{% endif %}
+{% endblock %}
+<script>
+    function updateSearchFields() {
+        const searchType = document.getElementById('searchType').value;
+        const dynamicFields = document.getElementById('dynamicFields');
+        dynamicFields.innerHTML = '';
+    
+        if (searchType === 'influencer') {
+            dynamicFields.innerHTML = `
+                <input type="text" class="form-control mb-2" name="influencer" placeholder="Search Influencer...">
+                <input type="text" class="form-control mb-2" name="niche" placeholder="Search Niche...">
+                <input type="text" class="form-control mb-2" name="category" placeholder="Search Category...">
+                <input type="checkbox" class="form-check-input mb-2" name="is_flagged" value="true">
+                <label class="form-check-label mb-2" for="is_flagged">Flagged</label>
+            `;
+        } else if (searchType === 'sponsor') {
+            dynamicFields.innerHTML = `
+                <input type="text" class="form-control mb-2" name="sponsor" placeholder="Search Sponsor...">
+                <input type="text" class="form-control mb-2" name="company" placeholder="Search Company...">
+                <input type="text" class="form-control mb-2" name="industry" placeholder="Search Industry...">
+                <input type="text" class="form-control mb-2" name="campaign" placeholder="Search Campaign...">
+                <input type="checkbox" class="form-check-input mb-2" name="is_flagged" value="true">
+                <label class="form-check-label mb-2" for="is_flagged">Flagged</label>
+            `;
+        } else if (searchType === 'campaign') {
+            dynamicFields.innerHTML = `
+                <input type="text" class="form-control mb-2" name="campaign_name" placeholder="Search Campaign Name...">
+                <input type="text" class="form-control mb-2" name="campaign_category" placeholder="Search Campaign Category...">
+                <input type="text" class="form-control mb-2" name="visibility" placeholder="Search Visibility...">
+                <input type="checkbox" class="form-check-input mb-2" name="is_active" value="true">
+                <label class="form-check-label mb-2" for="is_active">Active</label>
+            `;
+        }
+    }
+    </script>

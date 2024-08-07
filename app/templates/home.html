@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="content-section">
+    <h1>Welcome to the Influencer Engagement and Sponsorship Coordination Platform</h1>
+    <p class="lead">This is a platform to connect Sponsors and Influencers so that sponsors can get their product/service advertised and influencers can get monetary benefit.</p>
+    <hr>
+    <p>New here? <a href="{{ url_for('main.register') }}">Sign Up</a> or <a href="{{ url_for('main.login') }}">Log In</a> if you already have an account.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block title %}My Campaigns{% endblock %}
+
+{% block content %}
+<h1>My Campaigns</h1>
+<a href="{{ url_for('main.admin_new_campaign') }}" class="btn btn-primary mb-3">Create New Campaign</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for campaign in campaigns %}
+        <tr>
+            <td>{{ campaign.name }}</td>
+            <td>{{ campaign.category }}</td>
+            <td>{{ 'Active' if not campaign.is_flagged else 'Flagged' }}</td>
+            <td>
+                <button class="btn btn-info" data-toggle="modal" data-target="#viewCampaignModal{{ campaign.id }}">View</button>
+                <a href="{{ url_for('main.admin_update_campaign', campaign_id=campaign.id) }}" class="btn btn-warning">Edit</a>
+                <form method="POST" action="{{ url_for('main.admin_delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                    <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure?');">
+                </form>
+            </td>
+        </tr>
+
+        <!-- Modal -->
+        <div class="modal fade" id="viewCampaignModal{{ campaign.id }}" tabindex="-1" aria-labelledby="viewCampaignModalLabel{{ campaign.id }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewCampaignModalLabel{{ campaign.id }}">Campaign Details</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Name:</strong> {{ campaign.name }}</p>
+                        <p><strong>Category:</strong> {{ campaign.category }}</p>
+                        <p><strong>Description:</strong> {{ campaign.description }}</p>
+                        <p><strong>Start Date:</strong> {{ campaign.start_date }}</p>
+                        <p><strong>End Date:</strong> {{ campaign.end_date }}</p>
+                        <p><strong>Budget:</strong> {{ campaign.budget }}</p>
+                        <p><strong>Visibility:</strong> {{ campaign.visibility }}</p>
+                        <p><strong>Status:</strong> {{ 'Active' if not campaign.is_flagged else 'Flagged' }}</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

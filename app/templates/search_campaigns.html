@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}Search Campaigns{% endblock %}
+
+{% block content %}
+<h1>Search Campaigns</h1>
+
+{% if campaigns %}
+    <h2>Search Results</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Budget</th>
+        </tr>
+        {% for campaign in campaigns %}
+        <tr>
+            <td>{{ campaign.name }}</td>
+            <td>{{ campaign.category }}</td>
+            <td>{{ campaign.description }}</td>
+            <td>{{ campaign.start_date }}</td>
+            <td>{{ campaign.end_date }}</td>
+            <td>{{ campaign.budget }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+<a href="{{ url_for('main.influencer_dashboard') }}">Back to Dashboard</a>
+{% endblock %}
