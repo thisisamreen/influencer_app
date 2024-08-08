@@ -67,16 +67,14 @@ class UpdateAdRequestForm(FlaskForm):
     submit = SubmitField('Update Ad Request')
     negotiation_status = SelectField('Negotiation Status', choices=[('Open', 'Open'), ('Closed', 'Closed')], validators=[DataRequired()])
     
-
-
 class UpdateInfluencerProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6, max=60)])
-    name = StringField('Name', validators=[DataRequired()])
-    category = StringField('Category', validators=[DataRequired()])
-    niche = StringField('Niche', validators=[DataRequired()])
-    reach = IntegerField('Reach', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired(), Length(min=6, max=60)])
+    category = StringField('Category',)
+    niche = StringField('Niche', )
+    reach = IntegerField('Reach',)
     submit = SubmitField('Update Profile')
 
 class InfluencerSearchForm(FlaskForm):
@@ -96,15 +94,15 @@ class CreateUserForm(FlaskForm):
     role = SelectField('Role', choices=[ ('sponsor', 'Sponsor'), ('influencer', 'Influencer')], validators=[DataRequired()])
     submit = SubmitField('Create User')
 
-def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('That username is taken. Please choose a different one.')
+def validate_username( username):
+    user = User.query.filter_by(username=username.data).first()
+    if user:
+        raise ValidationError('That username is taken. Please choose a different one.')
 
-def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('That email is taken. Please choose a different one.')
+def validate_email( email):
+    user = User.query.filter_by(email=email.data).first()
+    if user:
+        raise ValidationError('That email is taken. Please choose a different one.')
 
 class UpdateUserForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])

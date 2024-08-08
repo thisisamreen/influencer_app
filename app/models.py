@@ -64,9 +64,9 @@ class InfluencerProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    category = db.Column(db.String(100), nullable=False)
-    niche = db.Column(db.String(100), nullable=False)
-    reach = db.Column(db.Integer, nullable=False)
+    category = db.Column(db.String(100),)
+    niche = db.Column(db.String(100), )
+    reach = db.Column(db.Integer,)
     # Backreference for the user
     user = db.relationship('User', back_populates='profile')
 

@@ -1,174 +1,150 @@
-# from app import db, create_app,bcrypt
-# from app.models import User, Campaign, AdRequest
-# from flask_bcrypt import Bcrypt
-# from datetime import date
-
-# app = create_app()
-# app.app_context().push()
-
-# bcrypt = Bcrypt(app)
-
-# # Drop all tables
-# db.drop_all()
-
-# # Create all tables
-# db.create_all()
-
-# # Create admin user
-# admin_password = bcrypt.generate_password_hash('admin').decode('utf-8')
-# admin = User(username='admin', email='admin@example.com', password=admin_password, role='admin')
-# db.session.add(admin)
-
-# # Create a sponsor user
-# sponsor_password = bcrypt.generate_password_hash('sponsor').decode('utf-8')
-# sponsor = User(username='sponsor_user', email='sponsor@example.com', password=sponsor_password, role='sponsor', company_name='Tech Corp', industry='Technology', budget=10000)
-# db.session.add(sponsor)
-
-# # Create campaigns
-# campaign1 = Campaign(
-#     name='Tech Campaign',
-#     description='A campaign to promote tech products',
-#     category='Tech',
-#     start_date=date(2024, 8, 4),
-#     end_date=date(2024, 12, 31),
-#     budget=5000.0,
-#     visibility='public',
-#     sponsor=sponsor,
-#     goals='Promote our latest tech products'
-# )
-
-# campaign2 = Campaign(
-#     name='Gaming Campaign',
-#     description='A campaign to promote gaming products',
-#     category='Gaming',
-#     start_date=date(2024, 8, 4),
-#     end_date=date(2024, 12, 31),
-#     budget=7000.0,
-#     visibility='public',
-#     sponsor=sponsor,
-#     goals='Promote our latest gaming products'
-# )
-
-# db.session.add(campaign1)
-# db.session.add(campaign2)
-
-# # Create an influencer user
-# influencer_password = bcrypt.generate_password_hash('influencer').decode('utf-8')
-# influencer = User(username='influencer_user', email='influencer@example.com', password=influencer_password, role='influencer')
-# db.session.add(influencer)
-
-# # Create ad requests
-# ad_request1 = AdRequest(
-#     campaign=campaign1.id,
-#     influencer=influencer.id,
-#     messages='Please promote our product in your next video',
-#     requirements='Mention our product name and show its features',
-#     payment_amount=1000.0,
-#     status='Pending'
-# )
-
-# ad_request2 = AdRequest(
-#     campaign=campaign2.id,
-#     influencer=influencer,
-#     messages='Please promote our gaming product',
-#     requirements='Show gameplay and mention features',
-#     payment_amount=1500.0,
-#     status='Pending'
-# )
-
-# db.session.add(ad_request1)
-# db.session.add(ad_request2)
-
-# # Commit the changes
-# db.session.commit()
-
-
-from app import db, create_app, bcrypt
+from app import create_app, db
+from app.models import User, InfluencerProfile, Campaign, AdRequest
 from flask_bcrypt import Bcrypt
-from app.models import User, Campaign, AdRequest
-from datetime import date
+import datetime
 
 app = create_app()
-app.app_context().push()
-
 bcrypt = Bcrypt(app)
 
-# Drop all tables
-db.drop_all()
+with app.app_context():
+    # Drop all tables and recreate them
+    db.drop_all()
+    db.create_all()
 
-# Create all tables
-db.create_all()
+    # Create admin user
+    admin = User(
+        username='admin',
+        email='admin@example.com',
+        password=bcrypt.generate_password_hash('admin').decode('utf-8'),
+        role='admin'
+    )
+    db.session.add(admin)
 
-# Create admin user
-admin_password = bcrypt.generate_password_hash('admin').decode('utf-8')
-admin = User(username='admin', email='admin@example.com', password=admin_password, role='admin')
-db.session.add(admin)
+    # Create sponsors
+    sponsor1 = User(
+        username='sponsor1',
+        email='sponsor1@example.com',
+        password=bcrypt.generate_password_hash('sponsor1').decode('utf-8'),
+        role='sponsor',
+        company_name='Sponsor Company 1',
+        industry='Tech',
+        budget=10000.0
+    )
 
-# Create a sponsor user
-sponsor_password = bcrypt.generate_password_hash('sponsor').decode('utf-8')
-sponsor = User(username='sponsor_user', email='sponsor@example.com', password=sponsor_password, role='sponsor', company_name='Tech Corp', industry='Technology', budget=10000)
-db.session.add(sponsor)
+    sponsor2 = User(
+        username='sponsor2',
+        email='sponsor2@example.com',
+        password=bcrypt.generate_password_hash('sponsor2').decode('utf-8'),
+        role='sponsor',
+        company_name='Sponsor Company 2',
+        industry='Health',
+        budget=15000.0
+    )
 
-# Create an influencer user
-influencer_password = bcrypt.generate_password_hash('influencer').decode('utf-8')
-influencer = User(username='influencer_user', email='influencer@example.com', password=influencer_password, role='influencer')
-db.session.add(influencer)
+    db.session.add(sponsor1)
+    db.session.add(sponsor2)
 
-# Commit users to the database so they get their IDs
-db.session.commit()
+    # Create influencers
+    influencer1 = User(
+        username='influencer1',
+        email='influencer1@example.com',
+        password=bcrypt.generate_password_hash('influencer1').decode('utf-8'),
+        role='influencer'
+    )
+    influencer1_profile = InfluencerProfile(
+        user=influencer1,
+        name='Influencer One',
+        category='Fitness',
+        niche='Yoga',
+        reach=10000
+    )
 
-# Create campaigns
-campaign1 = Campaign(
-    name='Tech Campaign',
-    description='A campaign to promote tech products',
-    category='Tech',
-    start_date=date(2024, 8, 4),
-    end_date=date(2024, 12, 31),
-    budget=5000.0,
-    visibility='public',
-    sponsor_id=sponsor.id,
-    goals='Promote our latest tech products'
-)
+    influencer2 = User(
+        username='influencer2',
+        email='influencer2@example.com',
+        password=bcrypt.generate_password_hash('influencer2').decode('utf-8'),
+        role='influencer'
+    )
+    influencer2_profile = InfluencerProfile(
+        user=influencer2,
+        name='Influencer Two',
+        category='Tech',
+        niche='Gadgets',
+        reach=20000
+    )
 
-campaign2 = Campaign(
-    name='Gaming Campaign',
-    description='A campaign to promote gaming products',
-    category='Gaming',
-    start_date=date(2024, 8, 4),
-    end_date=date(2024, 12, 31),
-    budget=7000.0,
-    visibility='public',
-    sponsor_id=sponsor.id,
-    goals='Promote our latest gaming products'
-)
+    influencer3 = User(
+        username='influencer3',
+        email='influencer3@example.com',
+        password=bcrypt.generate_password_hash('influencer3').decode('utf-8'),
+        role='influencer'
+    )
+    influencer3_profile = InfluencerProfile(
+        user=influencer3,
+        name='Influencer Three',
+        category='Food',
+        niche='Vegan Recipes',
+        reach=15000
+    )
 
-db.session.add(campaign1)
-db.session.add(campaign2)
+    db.session.add(influencer1)
+    db.session.add(influencer1_profile)
+    db.session.add(influencer2)
+    db.session.add(influencer2_profile)
+    db.session.add(influencer3)
+    db.session.add(influencer3_profile)
 
-# Commit campaigns to the database so they get their IDs
-db.session.commit()
+    # Create campaigns
+    campaign1 = Campaign(
+        name='Campaign One',
+        description='This is campaign one',
+        category='Tech',
+        start_date=datetime.date(2024, 1, 1),
+        end_date=datetime.date(2024, 12, 31),
+        budget=5000.0,
+        visibility='public',
+        sponsor=sponsor1,
+        goals='Increase brand awareness'
+    )
 
-# Create ad requests
-ad_request1 = AdRequest(
-    campaign_id=campaign1.id,
-    influencer_id=influencer.id,
-    messages='Please promote our product in your next video',
-    requirements='Mention our product name and show its features',
-    payment_amount=1000.0,
-    status='Open'
-)
+    campaign2 = Campaign(
+        name='Campaign Two',
+        description='This is campaign two',
+        category='Health',
+        start_date=datetime.date(2024, 2, 1),
+        end_date=datetime.date(2024, 11, 30),
+        budget=8000.0,
+        visibility='public',
+        sponsor=sponsor2,
+        goals='Boost sales'
+    )
 
-ad_request2 = AdRequest(
-    campaign_id=campaign2.id,
-    influencer_id=influencer.id,
-    messages='Please promote our gaming product',
-    requirements='Show gameplay and mention features',
-    payment_amount=1500.0,
-    status='Open'
-)
+    db.session.add(campaign1)
+    db.session.add(campaign2)
 
-db.session.add(ad_request1)
-db.session.add(ad_request2)
+    # Create ad requests
+    ad_request1 = AdRequest(
+        campaign=campaign1,
+        influencer=influencer1,
+        messages='Please promote our new tech gadget.',
+        requirements='Minimum 3 posts',
+        payment_amount=1000.0,
+        status='Pending'
+    )
 
-# Commit the ad requests
-db.session.commit()
+    ad_request2 = AdRequest(
+        campaign=campaign2,
+        influencer=influencer2,
+        messages='Promote our new health supplement.',
+        requirements='Minimum 2 posts',
+        payment_amount=1500.0,
+        status='Pending'
+    )
+
+    db.session.add(ad_request1)
+    db.session.add(ad_request2)
+
+    # Commit all changes to the database
+    db.session.commit()
+
+    print("Database initialized with users, profiles, campaigns, and ad requests.")

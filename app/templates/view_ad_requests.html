@@ -1,38 +1,55 @@
 {% extends "layout.html" %}
 
-{% block content %}
-<h1>Ad Requests</h1>
-<a href="{{ url_for('main.new_ad_request') }}">Create New Ad Request</a>
 
-<table>
-    <thead>
-        <tr>
-            <th>Campaign</th>
-            <th>Influencer</th>
-            <th>Messages</th>
-            <th>Requirements</th>
-            <th>Payment Amount</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for ad_request in ad_requests %}
-        <tr>
-            <td>{{ ad_request.campaign.name }}</td>
-            <td>{{ ad_request.influencer.username }}</td>
-            <td>{{ ad_request.messages }}</td>
-            <td>{{ ad_request.requirements }}</td>
-            <td>{{ ad_request.payment_amount }}</td>
-            <td>{{ ad_request.status }}</td>
-            <td>
-                <a href="{{ url_for('main.update_ad_request', ad_request_id=ad_request.id) }}">Edit</a>
-                <form method="POST" action="{{ url_for('main.delete_ad_request', ad_request_id=ad_request.id) }}" style="display:inline;">
-                    <input type="submit" value="Delete" onclick="return confirm('Are you sure?');">
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
+{% block content %}
+<h1>All Ad Requests</h1>
+<a href="{{ url_for('main.new_ad_request') }}" class="btn btn-primary">Create New Ad Request</a>
+<table class="table table-striped">
+    <tr>
+        <th>Campaign</th>
+        <th>Category</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+    {% for ad_request in ad_requests %}
+    <tr>
+        <td>{{ ad_request.campaign.name }}</td>
+        <td>{{ ad_request.campaign.category }}</td>
+        <td>{{ ad_request.status }}</td>
+        <td>
+            <button class="btn btn-info" data-toggle="modal" data-target="#viewAdRequestModal{{ ad_request.id }}">View</button>
+            <a href="{{ url_for('main.update_ad_request', ad_request_id=ad_request.id) }}" class="btn btn-warning">Edit</a>
+            <form method="POST" action="{{ url_for('main.delete_ad_request', ad_request_id=ad_request.id) }}" style="display:inline;">
+                <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure?');">
+            </form>
+        </td>
+    </tr>
+
+    <!-- Modal -->
+    <div class="modal fade" id="viewAdRequestModal{{ ad_request.id }}" tabindex="-1" aria-labelledby="viewAdRequestModalLabel{{ ad_request.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewAdRequestModalLabel{{ ad_request.id }}">Ad Request Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Campaign:</strong> {{ ad_request.campaign.name }}</p>
+                    <p><strong>Category:</strong> {{ ad_request.campaign.category }}</p>
+                    <p><strong>Influencer:</strong> {{ ad_request.influencer.username }}</p>
+                    <p><strong>Messages:</strong> {{ ad_request.messages }}</p>
+                    <p><strong>Requirements:</strong> {{ ad_request.requirements }}</p>
+                    <p><strong>Payment Amount:</strong> {{ ad_request.payment_amount }}</p>
+                    <p><strong>Status:</strong> {{ ad_request.status }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </table>
 {% endblock %}

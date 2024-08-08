@@ -1,4 +1,4 @@
- {% extends "layout.html" %}
+{% extends "layout.html" %}
 
 {% block content %}
 <h1>Sponsor Dashboard</h1>
@@ -62,7 +62,8 @@
     </tbody>
 </table>
 
-<h2>Your Ad Requests</h2>
+
+<h2>Ad Requests</h2>
 
 <table class="table table-bordered">
     <thead>
@@ -101,7 +102,6 @@
 </table>
 
 
-<a href="{{ url_for('main.new_campaign') }}">Create New Campaign</a>
 
 <a href="{{ url_for('main.new_ad_request') }}">Create New Ad Request</a>
 <a href="{{ url_for('main.view_ad_requests') }}">View All Ad Requests</a>

@@ -1,32 +1,37 @@
 {% extends "layout.html" %}
 
-
+{% block title %}Influencer Profile{% endblock %}
 
 {% block content %}
+    <h1>Influencer Profile</h1>
+    
 
-<h2>Your Profile</h2>
-{% if profile %}
-    <table class="table table-bordered">
-        <tr>
-            <th>Name</th>
-            <td>{{ profile.name }}</td>
-        </tr>
-        <tr>
-            <th>Category</th>
-            <td>{{ profile.category }}</td>
-        </tr>
-        <tr>
-            <th>Niche</th>
-            <td>{{ profile.niche }}</td>
-        </tr>
-        <tr>
-            <th>Reach</th>
-            <td>{{ profile.reach }}</td>
-        </tr>
-    </table>
-    <a href="{{ url_for('main.update_influencer_profile') }}">Update Profile</a>
-{% else %}
-    <p>No profile information available. <a href="{{ url_for('main.update_influencer_profile') }}">Create Profile</a></p>
-{% endif %}
+        <table class="table table-bordered">
+            <tr>
+                <th>Username</th>
+                <td>{{ current_user.username }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ current_user.email }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ current_user.profile.name }}</td>
+            </tr>
+            <tr>
+                <th>Category</th>
+                <td>{{ current_user.profile.category }}</td>
+            </tr>
+            <tr>
+                <th>Niche</th>
+                <td>{{ current_user.profile.niche }}</td>
+            </tr>
+            <tr>
+                <th>Reach</th>
+                <td>{{ current_user.profile.reach }}</td>
+            </tr>
+        </table>
+        <a href="{{ url_for('main.update_influencer_profile') }}" class="btn btn-primary">Update Profile</a>
 
 {% endblock %}

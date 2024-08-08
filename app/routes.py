@@ -283,7 +283,6 @@ def delete_ad_request(ad_request_id):
     db.session.delete(ad_request)
     db.session.commit()
     flash('Your ad request has been deleted!', 'success')
-    # return redirect(url_for('main.sponsor_dashboard'))
     return redirect(url_for('main.view_ad_requests'))
 
 @main.route("/sponsor/ad_requests/search", methods=['GET', 'POST'])
@@ -337,8 +336,6 @@ def respond_to_proposal(ad_request_id):
     db.session.commit()
     return redirect(url_for('main.sponsor_dashboard'))
 
-
-
 #Influencer Dashboard
 
 @main.route("/influencer/dashboard", methods=['GET', 'POST'])
@@ -375,6 +372,7 @@ def influencer_profile():
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.email = form.email.data
+        print(f"the profile :{current_user.profile}")
         if current_user.profile is None:
             profile = InfluencerProfile(
                 user_id=current_user.id,
@@ -400,7 +398,8 @@ def influencer_profile():
             form.category.data = current_user.profile.category
             form.niche.data = current_user.profile.niche
             form.reach.data = current_user.profile.reach
-
+    print(f"The current user : {current_user}")
+    print(f"the user niche :{current_user.profile}")
     return render_template('influencer_profile.html', title='Update Profile', form=form, legend='Update Profile',profile=current_user.profile)
 
 
@@ -457,12 +456,18 @@ def update_influencer_profile():
     if current_user.role != 'influencer':
         flash('You do not have access to this page.', 'danger')
         return redirect(url_for('main.home'))
-
+    print(f"HERE HERE")
     form = UpdateInfluencerProfileForm()
+    print(f"Request Method: {request.method}")
+    print(f"Form Data: {form.data}")
+    print(f"Form Errors: {form.errors}")
     if form.validate_on_submit():
+        print(f"POST Request")
+        print(f"Form Data: {form.data}")
         current_user.username = form.username.data
         current_user.email = form.email.data
         if current_user.profile is None:
+            
             profile = InfluencerProfile(
                 user_id=current_user.id,
                 name=form.name.data,
@@ -472,26 +477,27 @@ def update_influencer_profile():
             )
             db.session.add(profile)
         else:
+            print(f"The profile is {current_user.profile}")
             current_user.profile.name = form.name.data
             current_user.profile.category = form.category.data
             current_user.profile.niche = form.niche.data
             current_user.profile.reach = form.reach.data
-            db.session.add(profile)
+            # db.session.add(profile)
         db.session.commit()
         flash('Your profile has been updated!', 'success')
-        return redirect(url_for('main.influencer_profile'))
+        return redirect(url_for('main.influencer_dashboard'))
     elif request.method == 'GET':
-        
-        
+        print(f"GET Request")
         if current_user.profile:
+            print(f"The profile is {current_user.profile}")
             form.email.data = current_user.email
             form.username.data = current_user.username
             form.name.data = current_user.profile.name
             form.category.data = current_user.profile.category
             form.niche.data = current_user.profile.niche
             form.reach.data = current_user.profile.reach
-
-    return render_template('update_influencer_profile.html', title='Update Profile', form=form,profile=current_user.profile,form_action='main.influencer_profile')
+    print(f"THERE THERE")
+    return render_template('update_influencer_profile.html', title='Update Profile', form=form,profile=current_user.profile)
 
 @main.route("/sponsor/influencers/search", methods=['GET', 'POST'])
 @login_required
