@@ -183,8 +183,9 @@ def new_campaign():
 @sponsor_required
 def update_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
-    if campaign.sponsor != current_user:
-        flash('You do not have access to this page.', 'danger')
+    print(current_user)
+    # if campaign.sponsor != current_user:
+    #     flash('You do not have access to this page.', 'danger')
     form = CampaignForm()
     if form.validate_on_submit():
         campaign.name = form.name.data
@@ -249,11 +250,12 @@ def new_ad_request():
 @login_required
 @sponsor_required
 def update_ad_request(ad_request_id):
+    print('hey')
     ad_request = AdRequest.query.get_or_404(ad_request_id)
     form = UpdateAdRequestForm()
     form.campaign_id.choices = [(campaign.id, campaign.name) for campaign in Campaign.query.filter_by(sponsor_id=current_user.id).all()]
     form.influencer_id.choices = [(user.id, user.username) for user in User.query.filter_by(role='influencer').all()]
-
+    print('hey there')
     if form.validate_on_submit():
         ad_request.campaign_id = form.campaign_id.data
         ad_request.influencer_id = form.influencer_id.data
@@ -266,6 +268,7 @@ def update_ad_request(ad_request_id):
         # return redirect(url_for('main.sponsor_dashboard'))
         return redirect(url_for('main.view_ad_requests'))
     elif request.method == 'GET':
+        print('There there')
         form.campaign_id.data = ad_request.campaign_id
         form.influencer_id.data = ad_request.influencer_id
         form.messages.data = ad_request.messages
@@ -369,10 +372,11 @@ def influencer_dashboard():
 @influencer_required
 def influencer_profile():
     form = UpdateInfluencerProfileForm()
+
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.email = form.email.data
-        print(f"the profile :{current_user.profile}")
+
         if current_user.profile is None:
             profile = InfluencerProfile(
                 user_id=current_user.id,
@@ -387,9 +391,11 @@ def influencer_profile():
             current_user.profile.category = form.category.data
             current_user.profile.niche = form.niche.data
             current_user.profile.reach = form.reach.data
+
         db.session.commit()
         flash('Your profile has been updated!', 'success')
         return redirect(url_for('main.influencer_dashboard'))
+    
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.email.data = current_user.email
@@ -398,9 +404,8 @@ def influencer_profile():
             form.category.data = current_user.profile.category
             form.niche.data = current_user.profile.niche
             form.reach.data = current_user.profile.reach
-    print(f"The current user : {current_user}")
-    print(f"the user niche :{current_user.profile}")
-    return render_template('influencer_profile.html', title='Update Profile', form=form, legend='Update Profile',profile=current_user.profile)
+
+    return render_template('influencer_profile.html', title='Update Profile', form=form, legend='Update Profile', profile=current_user.profile)
 
 
 @main.route("/influencer/ad_request/<int:ad_request_id>/accept", methods=['POST'])
@@ -460,7 +465,8 @@ def update_influencer_profile():
     form = UpdateInfluencerProfileForm()
     print(f"Request Method: {request.method}")
     print(f"Form Data: {form.data}")
-    print(f"Form Errors: {form.errors}")
+    # print(f"Form Errors: {form.errors}")
+    print(form.validate_on_submit())
     if form.validate_on_submit():
         print(f"POST Request")
         print(f"Form Data: {form.data}")

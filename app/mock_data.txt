@@ -14,9 +14,9 @@ username: amreen
 email: amreen@example.com
 password: amr
 
-username: Sahil
-email: Sahil@example.com
-password: sahil
+username: aljozy
+email: aljozy@example.com
+password: jozy
 
 username: sponsor
 email: sponsor@example.com
