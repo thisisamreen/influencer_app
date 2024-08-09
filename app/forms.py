@@ -70,7 +70,7 @@ class UpdateAdRequestForm(FlaskForm):
 class UpdateInfluencerProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=6, max=60)])
+    # password = PasswordField('Password', validators=[DataRequired(), Length(min=6, max=60)])
     name = StringField('Name', validators=[DataRequired(), Length(min=6, max=60)])
     category = StringField('Category',)
     niche = StringField('Niche', )

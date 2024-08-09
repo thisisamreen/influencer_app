@@ -22,8 +22,8 @@
             <td>{{ 'Active' if not campaign.is_flagged else 'Flagged' }}</td>
             <td>
                 <button class="btn btn-info" data-toggle="modal" data-target="#viewCampaignModal{{ campaign.id }}">View</button>
-                <a href="{{ url_for('main.admin_update_campaign', campaign_id=campaign.id) }}" class="btn btn-warning">Edit</a>
-                <form method="POST" action="{{ url_for('main.admin_delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
+                <a href="{{ url_for('main.update_campaign', campaign_id=campaign.id) }}" class="btn btn-warning">Edit</a>
+                <form method="POST" action="{{ url_for('main.delete_campaign', campaign_id=campaign.id) }}" style="display:inline;">
                     <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure?');">
                 </form>
             </td>
