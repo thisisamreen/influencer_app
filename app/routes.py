@@ -42,41 +42,41 @@ def home():
 
 
 
-@main.route("/register", methods=['GET', 'POST'])
-def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(username=form.username.data, email=form.email.data, password=hashed_password, role=form.role.data)
-        db.session.add(user)
-        db.session.commit()
-        flash(f'Account created for {form.username.data}!', 'success')
-        return redirect(url_for('main.login'))
-    return render_template('register.html', title='Register', form=form)
+# @main.route("/register", methods=['GET', 'POST'])
+# def register():
+#     form = RegistrationForm()
+#     if form.validate_on_submit():
+#         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+#         user = User(username=form.username.data, email=form.email.data, password=hashed_password, role=form.role.data)
+#         db.session.add(user)
+#         db.session.commit()
+#         flash(f'Account created for {form.username.data}!', 'success')
+#         return redirect(url_for('main.login'))
+#     return render_template('register.html', title='Register', form=form)
 
-@main.route("/login", methods=['GET', 'POST'])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.home'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember=form.remember.data)
-            next_page = request.args.get('next')
-            if next_page:
-                return redirect(next_page)
-            elif user.role == 'admin':
-                return redirect(url_for('main.admin_dashboard'))
-            elif user.role == 'sponsor':
-                return redirect(url_for('main.sponsor_dashboard'))
-            elif user.role == 'influencer':
-                return redirect(url_for('main.influencer_dashboard'))
-            else:
-                return redirect(url_for('main.home'))
-        else:
-            flash('Login Unsuccessful. Please check email and password', 'danger')
-    return render_template('login.html', title='Login', form=form)
+# @main.route("/login", methods=['GET', 'POST'])
+# def login():
+#     if current_user.is_authenticated:
+#         return redirect(url_for('main.home'))
+#     form = LoginForm()
+#     if form.validate_on_submit():
+#         user = User.query.filter_by(email=form.email.data).first()
+#         if user and bcrypt.check_password_hash(user.password, form.password.data):
+#             login_user(user, remember=form.remember.data)
+#             next_page = request.args.get('next')
+#             if next_page:
+#                 return redirect(next_page)
+#             elif user.role == 'admin':
+#                 return redirect(url_for('main.admin_dashboard'))
+#             elif user.role == 'sponsor':
+#                 return redirect(url_for('main.sponsor_dashboard'))
+#             elif user.role == 'influencer':
+#                 return redirect(url_for('main.influencer_dashboard'))
+#             else:
+#                 return redirect(url_for('main.home'))
+#         else:
+#             flash('Login Unsuccessful. Please check email and password', 'danger')
+#     return render_template('login.html', title='Login', form=form)
 
 @main.route("/logout")
 def logout():
@@ -893,3 +893,128 @@ def admin_search():
 
     return render_template('admin_search_results.html', results=results)
 
+#Version 2
+
+
+#sponsover approval
+# @main.route('/admin/pending_approvals')
+# def pending_approvals():
+#     if not current_user.is_authenticated or current_user.role != 'admin':
+#         return redirect(url_for('main.login'))
+#     pending_sponsors = User.query.filter_by(role='sponsor', is_approved=False).all()
+#     return render_template('pending_approvals.html', sponsors=pending_sponsors)
+
+# @main.route('/admin/approve_sponsor/<int:sponsor_id>', methods=['POST'])
+# def approve_sponsor(sponsor_id):
+#     if not current_user.is_authenticated or current_user.role != 'admin':
+#         return redirect(url_for('main.login'))
+#     sponsor = User.query.get(sponsor_id)
+#     if sponsor and sponsor.role == 'sponsor':
+#         sponsor.is_approved = True
+#         db.session.commit()
+#         flash('Sponsor approved successfully.')
+#     return redirect(url_for('main.pending_approvals'))
+
+# @main.route('/admin/reject_sponsor/<int:sponsor_id>', methods=['POST'])
+# def reject_sponsor(sponsor_id):
+#     if not current_user.is_authenticated or current_user.role != 'admin':
+#         return redirect(url_for('main.login'))
+#     sponsor = User.query.get(sponsor_id)
+#     if sponsor and sponsor.role == 'sponsor':
+#         db.session.delete(sponsor)
+#         db.session.commit()
+#         flash('Sponsor rejected and deleted successfully.')
+#     return redirect(url_for('main.pending_approvals'))
+
+
+@main.route("/register_sponsor", methods=['GET', 'POST'])
+def register_sponsor():
+    form = SponsorRegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password, role='sponsor',is_approved=False)
+        db.session.add(user)
+        db.session.commit()
+        flash('Account created for sponsor! Please wait for admin approval.', 'success')
+        return redirect(url_for('main.login'))
+    return render_template('register.html', title='Register Sponsor', form=form)
+
+
+@main.route("/register_influencer", methods=['GET', 'POST'])
+def register_influencer():
+    form = InfluencerRegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password, role='influencer')
+        db.session.add(user)
+        db.session.commit()
+        flash('Account created for influencer!', 'success')
+        return redirect(url_for('main.login'))
+    return render_template('register.html', title='Register Influencer', form=form)
+
+@main.route("/admin/pending_approvals", methods=['GET'])
+@login_required
+def pending_approvals():
+    if current_user.role != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.home'))
+    pending_sponsors = User.query.filter_by(role='sponsor', is_approved=False).all()
+    return render_template('pending_approvals.html', sponsors=pending_sponsors)
+
+@main.route("/admin/approve_sponsor/<int:sponsor_id>", methods=['POST'])
+@login_required
+def approve_sponsor(sponsor_id):
+    if current_user.role != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.home'))
+    sponsor = User.query.get_or_404(sponsor_id)
+    if sponsor.role == 'sponsor':
+        sponsor.is_approved = True
+        db.session.commit()
+        flash('Sponsor approved successfully.', 'success')
+    return redirect(url_for('main.pending_approvals'))
+
+@main.route("/admin/reject_sponsor/<int:sponsor_id>", methods=['POST'])
+@login_required
+def reject_sponsor(sponsor_id):
+    if current_user.role != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.home'))
+    sponsor = User.query.get_or_404(sponsor_id)
+    if sponsor.role == 'sponsor':
+        db.session.delete(sponsor)
+        db.session.commit()
+        flash('Sponsor rejected and deleted successfully.', 'success')
+    return redirect(url_for('main.pending_approvals'))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@main.route("/login", methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            if user.role == 'sponsor' and not user.is_approved:
+                flash('Account pending approval. Please wait for admin approval.', 'warning')
+                return redirect(url_for('main.login'))
+            login_user(user, remember=form.remember.data)
+            next_page = request.args.get('next')
+            if next_page:
+                return redirect(next_page)
+            elif user.role == 'admin':
+                return redirect(url_for('main.admin_dashboard'))
+            elif user.role == 'sponsor':
+                return redirect(url_for('main.sponsor_dashboard'))
+            elif user.role == 'influencer':
+                return redirect(url_for('main.influencer_dashboard'))
+            else:
+                return redirect(url_for('main.home'))
+            # return redirect(next_page) if next_page else redirect(url_for('main.home'))
+        else:
+            flash('Login unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html', title='Login', form=form)

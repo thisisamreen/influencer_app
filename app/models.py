@@ -22,7 +22,7 @@ class User(db.Model,UserMixin):
     ad_requests = db.relationship('AdRequest', foreign_keys='AdRequest.influencer_id', back_populates='influencer', lazy=True)
     profile = db.relationship('InfluencerProfile', uselist=False, back_populates='user')
     is_flagged = db.Column(db.Boolean, default=False)
-
+    is_approved = db.Column(db.Boolean, default=False)
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 

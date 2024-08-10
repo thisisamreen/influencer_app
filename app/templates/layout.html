@@ -33,6 +33,9 @@
                             <a class="nav-link" href="{{ url_for('main.admin_ad_requests') }}">Manage Requests</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('main.pending_approvals') }}">Sponsor Approvals</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('main.admin_search') }}">Search</a>
                         </li>
                     {% elif current_user.role == 'sponsor' %}
@@ -67,7 +70,10 @@
                         <a class="nav-link" href="{{ url_for('main.login') }}">Login</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.register') }}">Register</a>
+                        <a class="nav-link" href="{{ url_for('main.register_sponsor') }}">Register as Sponsor</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.register_influencer') }}">Register as Influencer</a>
                     </li>
                 {% endif %}
             </ul>
