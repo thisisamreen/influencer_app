@@ -1,11 +1,7 @@
 {% extends "layout.html" %}
 
-{% block title %}Admin Dashboard{% endblock %}
-
 {% block content %}
 <h1>Welcome</h1>
-
-
 
 <h2>Statistics</h2>
 <table>
@@ -42,5 +38,89 @@
         <td>{{ active_ad_requests_count }}</td>
     </tr>
 </table>
+
+<h2>User Distribution</h2>
+<div style="width: 400px; height: 200px;">
+    <canvas id="userPieChart"></canvas>
+</div>
+
+<h2>Campaigns Overview</h2>
+<div style="width: 400px; height: 200px;">
+    <canvas id="campaignBarChart"></canvas>
+</div>
+
+<h2>Flagged vs Active Users</h2>
+<div style="width: 400px; height: 200px;">
+    <canvas id="userStatusBarChart"></canvas>
+</div>
+
+
+
+<script>
+// Data for the pie chart
+var userPieCtx = document.getElementById('userPieChart').getContext('2d');
+var userPieChart = new Chart(userPieCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Sponsors', 'Influencers'],
+        datasets: [{
+            label: 'Total Users',
+            data: [{{ sponsors_count }}, {{ influencers_count }}],
+            backgroundColor: ['#36A2EB', '#FF6384'],
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+    }
+});
+
+// Data for the bar chart
+var campaignBarCtx = document.getElementById('campaignBarChart').getContext('2d');
+var campaignBarChart = new Chart(campaignBarCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Active Campaigns', 'Flagged Campaigns'],
+        datasets: [{
+            label: 'Campaigns',
+            data: [{{ active_campaigns_count }}, {{ flagged_campaigns_count }}],
+            backgroundColor: ['#4BC0C0', '#FFCE56'],
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+    }
+});
+
+// Data for the flagged vs active users bar chart
+var userStatusBarCtx = document.getElementById('userStatusBarChart').getContext('2d');
+var userStatusBarChart = new Chart(userStatusBarCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Active Sponsors', 'Flagged Sponsors', 'Active Influencers', 'Flagged Influencers'],
+        datasets: [{
+            label: 'Users',
+            data: [{{ active_sponsors_count }}, {{ flagged_sponsors_count }}, {{ active_influencers_count }}, {{ flagged_influencers_count }}],
+            backgroundColor: ['#4BC0C0', '#FFCE56', '#36A2EB', '#FF6384'],
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+    }
+});
+
+</script>
 
 {% endblock %}

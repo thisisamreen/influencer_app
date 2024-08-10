@@ -48,13 +48,13 @@ class AdRequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     campaign_id = db.Column(db.Integer, db.ForeignKey('campaign.id'), nullable=False)
     influencer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    messages = db.Column(db.Text, nullable=False)
-    requirements = db.Column(db.Text, nullable=False)
-    payment_amount = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(10), nullable=False, default='Pending')
-    counter_amount = db.Column(db.Float)
-    proposed_amount = db.Column(db.Float, nullable=True)
-    negotiation_status = db.Column(db.String(20), nullable=False, default='Open')  # Open, Closed
+    messages = db.Column(db.Text, )
+    requirements = db.Column(db.Text, )
+    payment_amount = db.Column(db.Float, )
+    status = db.Column(db.String(10),default='Pending')
+    counter_amount = db.Column(db.Float) # Influencer Counter Amount
+    proposed_amount = db.Column(db.Float, ) # Sponosr counter amount
+    negotiation_status = db.Column(db.String(20),  default='Open')  # Open, Closed
     campaign = db.relationship('Campaign', back_populates='ad_requests',lazy=True)
     influencer = db.relationship('User', back_populates='ad_requests',lazy=True)
     def __repr__(self):

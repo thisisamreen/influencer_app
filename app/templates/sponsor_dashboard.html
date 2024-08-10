@@ -73,8 +73,10 @@
             <th>Messages</th>
             <th>Requirements</th>
             <th>Payment Amount</th>
+            <th>Proposed by Influencer</th>
             <th>Status</th>
             <th>Action</th>
+
         </tr>
     </thead>
     <tbody>
@@ -85,11 +87,20 @@
             <td>{{ ad_request.messages }}</td>
             <td>{{ ad_request.requirements }}</td>
             <td>{{ ad_request.payment_amount }}</td>
-            <td>{{ ad_request.status }}</td>
+            <td>{{ ad_request.counter_amount if ad_request.counter_amount else '' }}</td> <!-- Display counter amount if present -->
+
+            <td>
+                {% if ad_request.proposed_amount %}
+                    {{ ad_request.status }} (Proposed: {{ ad_request.proposed_amount }})
+                {% else %}
+                    {{ ad_request.status }}
+                {% endif %}
+            </td>
+            
             <td>
                 {% if ad_request.negotiation_status == 'Open' %}
                 <form method="POST" action="{{ url_for('main.respond_to_proposal', ad_request_id=ad_request.id) }}" style="display:inline;">
-                    <input type="number" name="counter_amount" min="0" step="0.01" required>
+                    <input type="number" name="proposed_amount" min="0" step="0.01" required>
                     <input type="submit" name="action" value="Counter" class="btn btn-info">
                     <input type="submit" name="action" value="Accept" class="btn btn-success" onclick="return confirm('Are you sure you want to accept this proposal?');">
                     <input type="submit" name="action" value="Reject" class="btn btn-danger" onclick="return confirm('Are you sure you want to reject this proposal?');">

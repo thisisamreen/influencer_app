@@ -49,24 +49,31 @@ class SearchForm(FlaskForm):
     search = StringField('Search Campaigns', validators=[DataRequired()])
     submit = SubmitField('Search')
 
+class CreateInfluencerAdRequestForm(FlaskForm):
+    # campaign_id = SelectField('Campaign', coerce=int, validators=[DataRequired()])
+    # influencer_id = SelectField('Influencer', coerce=int, validators=[DataRequired()])
+    messages = TextAreaField('Messages', )
+    counter_amount = FloatField('Amount', )
+    submit = SubmitField('Create Ad Request')
+
 class CreateAdRequestForm(FlaskForm):
     campaign_id = SelectField('Campaign', coerce=int, validators=[DataRequired()])
     influencer_id = SelectField('Influencer', coerce=int, validators=[DataRequired()])
-    messages = TextAreaField('Messages', validators=[DataRequired()])
-    requirements = TextAreaField('Requirements', validators=[DataRequired()])
-    payment_amount = FloatField('Payment Amount', validators=[DataRequired()])
+    messages = TextAreaField('Messages', )
+    requirements = TextAreaField('Requirements', )
+    payment_amount = FloatField('Payment Amount', )
     submit = SubmitField('Create Ad Request')
 
 class UpdateAdRequestForm(FlaskForm):
     campaign_id = SelectField('Campaign', coerce=int, validators=[DataRequired()])
     influencer_id = SelectField('Influencer', coerce=int, validators=[DataRequired()])
-    messages = TextAreaField('Messages', validators=[DataRequired()])
-    requirements = TextAreaField('Requirements', validators=[DataRequired()])
-    payment_amount = FloatField('Payment Amount', validators=[DataRequired()])
-    status = SelectField('Status', choices=[('Negotiating', 'Negotiating'), ('Approved', 'Approved'), ('Rejected', 'Rejected')], validators=[DataRequired()])
+    messages = TextAreaField('Messages',)
+    requirements = TextAreaField('Requirements',)
+    payment_amount = FloatField('Payment Amount', )
+    status = SelectField('Status', choices=[('Negotiating', 'Negotiating'), ('Approved', 'Approved'), ('Rejected', 'Rejected')], )
+    negotiation_status = SelectField('Negotiation Status', choices=[('Open', 'Open'), ('Closed', 'Closed')],)
     submit = SubmitField('Update Ad Request')
-    negotiation_status = SelectField('Negotiation Status', choices=[('Open', 'Open'), ('Closed', 'Closed')], validators=[DataRequired()])
-    
+
 class UpdateInfluencerProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -108,7 +115,7 @@ class UpdateUserForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    role = SelectField('Role', choices=[ ('sponsor', 'Sponsor'), ('influencer', 'Influencer')], validators=[DataRequired()]) 
+    # role = SelectField('Role', choices=[ ('sponsor', 'Sponsor'), ('influencer', 'Influencer')], validators=[DataRequired()]) 
     submit = SubmitField('Update User')
 
 class CreateCampaignForm(FlaskForm):

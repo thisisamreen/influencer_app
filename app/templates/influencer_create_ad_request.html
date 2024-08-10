@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}Create Ad Request{% endblock %}
+
+{% block content %}
+<h1>Create Ad Request for {{ campaign.name }}</h1>
+
+<form method="POST" action="{{ url_for('main.create_ad_request', campaign_id=campaign.id) }}">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.messages.label }} {{ form.messages(class_="form-control") }}
+    </div>
+    
+    <div class="form-group">
+        {{ form.counter_amount.label }} {{ form.counter_amount(class_="form-control") }}
+        <small class="form-text text-muted">Leave blank to accept the default budget of the campaign.</small>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+    </div>
+</form>
+
+<a href="{{ url_for('main.search_campaigns') }}" class="btn btn-secondary">Back to Search</a>
+{% endblock %}

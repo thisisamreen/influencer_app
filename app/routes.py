@@ -307,34 +307,69 @@ def view_ad_requests():
     ad_requests = AdRequest.query.join(Campaign).filter(Campaign.sponsor_id == current_user.id).all()
     return render_template('view_ad_requests.html', ad_requests=ad_requests)
 
+# @main.route("/sponsor/ad_request/respond/<int:ad_request_id>", methods=['POST'])
+# @login_required
+# @sponsor_required
+# def respond_to_proposal(ad_request_id):
+#     ad_request = AdRequest.query.get_or_404(ad_request_id)
+    
+#     if ad_request.campaign.sponsor_id != current_user.id:
+#         flash('You do not have permission to respond to this proposal.', 'danger')
+#         return redirect(url_for('main.sponsor_dashboard'))
+#     print(request)
+#     action = request.form.get('action')
+#     if action == 'accept':
+#         ad_request.payment_amount = ad_request.counter_amount
+#         ad_request.status = 'Approved'
+#         ad_request.negotiation_status = 'Closed'
+#         flash('The proposal has been accepted!', 'success')
+#     elif action == 'reject':
+#         print(action)
+#         ad_request.status = 'Rejected'
+#         ad_request.negotiation_status = 'Closed'
+#         flash('The proposal has been rejected.', 'danger')
+#     elif action == 'Negotiate':
+#         print(f"action is counter")
+#         proposed_amount = request.form.get('proposed_amount')
+#         print(f"the counter is :{proposed_amount}")
+#         ad_request.proposed_amount = float(proposed_amount)
+#         ad_request.status = 'Negotiating'
+#         ad_request.negotiation_status = 'Open'
+#         flash('A counter proposal has been submitted!', 'info')
+    
+#     db.session.commit()
+#     return redirect(url_for('main.sponsor_dashboard'))
+
 @main.route("/sponsor/ad_request/respond/<int:ad_request_id>", methods=['POST'])
 @login_required
 @sponsor_required
 def respond_to_proposal(ad_request_id):
     ad_request = AdRequest.query.get_or_404(ad_request_id)
+    
     if ad_request.campaign.sponsor_id != current_user.id:
         flash('You do not have permission to respond to this proposal.', 'danger')
         return redirect(url_for('main.sponsor_dashboard'))
-    
+
     action = request.form.get('action')
-    if action == 'accept':
-        ad_request.payment_amount = ad_request.proposed_amount
+    if action == 'Accept':
+        ad_request.payment_amount = ad_request.counter_amount
         ad_request.status = 'Approved'
         ad_request.negotiation_status = 'Closed'
         flash('The proposal has been accepted!', 'success')
-    elif action == 'reject':
+    elif action == 'Reject':
         ad_request.status = 'Rejected'
         ad_request.negotiation_status = 'Closed'
         flash('The proposal has been rejected.', 'danger')
-    elif action == 'counter':
-        counter_amount = request.form.get('counter_amount')
-        ad_request.proposed_amount = float(counter_amount)
+    elif action == 'Counter':
+        proposed_amount = request.form.get('proposed_amount')
+        ad_request.proposed_amount = float(proposed_amount)
         ad_request.status = 'Negotiating'
         ad_request.negotiation_status = 'Open'
         flash('A counter proposal has been submitted!', 'info')
     
     db.session.commit()
     return redirect(url_for('main.sponsor_dashboard'))
+
 
 #Influencer Dashboard
 
@@ -402,6 +437,32 @@ def influencer_profile():
     print(f"the user niche :{current_user.profile}")
     return render_template('influencer_profile.html', title='Update Profile', form=form, legend='Update Profile',profile=current_user.profile)
 
+@main.route("/influencer/ad_request/create/<int:campaign_id>", methods=['GET', 'POST'])
+@login_required
+@influencer_required
+def create_ad_request(campaign_id):
+    campaign = Campaign.query.get_or_404(campaign_id)
+    if campaign.visibility != 'public':
+        flash('This campaign is not public.', 'danger')
+        return redirect(url_for('main.search_campaigns'))
+
+    form = CreateInfluencerAdRequestForm()
+    if form.validate_on_submit():
+        ad_request = AdRequest(
+            campaign_id=campaign.id,
+            influencer_id=current_user.id,
+            messages=form.messages.data,
+            counter_amount=form.counter_amount.data ,
+            status='Pending',
+            negotiation_status='Open'
+        )
+        db.session.add(ad_request)
+        db.session.commit()
+        flash('Ad request sent successfully!', 'success')
+        return redirect(url_for('main.influencer_dashboard'))
+
+    return render_template('influencer_create_ad_request.html', form=form, campaign=campaign)
+
 
 @main.route("/influencer/ad_request/<int:ad_request_id>/accept", methods=['POST'])
 @login_required
@@ -437,16 +498,18 @@ def negotiate_ad_request(ad_request_id):
     if ad_request.influencer_id != current_user.id:
         flash('You do not have permission to negotiate this ad request.', 'danger')
         return redirect(url_for('main.influencer_dashboard'))
-    proposed_amount = request.form.get('proposed_amount')
-    if proposed_amount:
-        ad_request.proposed_amount = float(proposed_amount)
-        db.session.add(proposed_amount)
+    print(f"counter:{request}")
+    counter_amount = request.form.get('counter_amount')
+    
+    if counter_amount:
+        ad_request.counter_amount = float(counter_amount)
+        # db.session.add(counter_amount)
         ad_request.status = "Negotiating"
         ad_request.negotiation_status = 'Open'
-        
+        # print(f"counter:{counter_amount}")
         db.session.commit()
         flash('Your proposed amount has been submitted!', 'success')
-    
+   
     return redirect(url_for('main.influencer_dashboard'))
 
 @main.route("/influencer/profile/update", methods=['GET', 'POST'])
@@ -456,16 +519,12 @@ def update_influencer_profile():
     if current_user.role != 'influencer':
         flash('You do not have access to this page.', 'danger')
         return redirect(url_for('main.home'))
-    print(f"HERE HERE")
+    
     form = UpdateInfluencerProfileForm()
-    print(f"Request Method: {request.method}")
-    print(f"Form Data: {form.data}")
-    print(f"Form Errors: {form.errors}")
     if form.validate_on_submit():
-        print(f"POST Request")
-        print(f"Form Data: {form.data}")
         current_user.username = form.username.data
         current_user.email = form.email.data
+        current_user.password = form.password.data
         if current_user.profile is None:
             
             profile = InfluencerProfile(
@@ -492,11 +551,12 @@ def update_influencer_profile():
             print(f"The profile is {current_user.profile}")
             form.email.data = current_user.email
             form.username.data = current_user.username
+            form.password.data = current_user.password
             form.name.data = current_user.profile.name
             form.category.data = current_user.profile.category
             form.niche.data = current_user.profile.niche
             form.reach.data = current_user.profile.reach
-    print(f"THERE THERE")
+    
     return render_template('update_influencer_profile.html', title='Update Profile', form=form,profile=current_user.profile)
 
 @main.route("/sponsor/influencers/search", methods=['GET', 'POST'])
@@ -542,37 +602,40 @@ def search_campaigns():
 
 #Admin Dashboard
 
+
 @main.route("/admin/dashboard")
 @login_required
 @admin_required
 def admin_dashboard():
-    users = User.query.all()
-    campaigns = Campaign.query.all()
-    ad_requests = AdRequest.query.all()
-
-    # Statistics
-    active_users_count = User.query.filter(User.role != 'admin').count()
-    flagged_users_count = User.query.filter_by(is_flagged=True).count()
-    active_campaigns_count = Campaign.query.count()
-    active_ad_requests_count = AdRequest.query.count()
-    flagged_campaigns_count = Campaign.query.filter_by(is_flagged=True).count()
-
+    # Calculate the necessary statistics
+    active_users_count = User.query.filter_by(is_flagged=False).count()
     influencers_count = User.query.filter_by(role='influencer').count()
     sponsors_count = User.query.filter_by(role='sponsor').count()
+    flagged_users_count = User.query.filter_by(is_flagged=True).count()
+    
+    active_campaigns_count = Campaign.query.filter_by(is_flagged=False).count()
+    flagged_campaigns_count = Campaign.query.filter_by(is_flagged=True).count()
+    
+    active_ad_requests_count = AdRequest.query.filter_by(status='Pending').count()
 
-    return render_template(
-        'admin_dashboard.html',
-        users=users,
-        campaigns=campaigns,
-        ad_requests=ad_requests,
-        active_users_count=active_users_count,
-        flagged_users_count=flagged_users_count,
-        active_campaigns_count=active_campaigns_count,
-        active_ad_requests_count=active_ad_requests_count,
-        flagged_campaigns_count=flagged_campaigns_count,
-        influencers_count=influencers_count,
-        sponsors_count=sponsors_count
-    )
+    active_sponsors_count = User.query.filter_by(role='sponsor', is_flagged=False).count()
+    flagged_sponsors_count = User.query.filter_by(role='sponsor', is_flagged=True).count()
+    active_influencers_count = User.query.filter_by(role='influencer', is_flagged=False).count()
+    flagged_influencers_count = User.query.filter_by(role='influencer', is_flagged=True).count()
+
+    # Pass the data to the template
+    return render_template('admin_dashboard.html', 
+                           active_users_count=active_users_count,
+                           influencers_count=influencers_count,
+                           sponsors_count=sponsors_count,
+                           flagged_users_count=flagged_users_count,
+                           active_campaigns_count=active_campaigns_count,
+                           flagged_campaigns_count=flagged_campaigns_count,
+                           active_ad_requests_count=active_ad_requests_count,
+                           active_sponsors_count=active_sponsors_count,
+                           flagged_sponsors_count=flagged_sponsors_count,
+                           active_influencers_count=active_influencers_count,
+                           flagged_influencers_count=flagged_influencers_count)
 
 
 
@@ -663,18 +726,23 @@ def new_user():
 def update_user(user_id):
     user = User.query.get_or_404(user_id)
     form = UpdateUserForm()
+    print(f"User = { user.username }")
+    print(f"EMAIL = { user.email }")
     if form.validate_on_submit():
         user.username = form.username.data
         user.email = form.email.data
-        user.role = form.role.data
+        print(f"User = { user.username }")
+        print(f"EMAIL = { user.email }")
         db.session.commit()
         flash('User has been updated!', 'success')
         return redirect(url_for('main.view_users'))
     elif request.method == 'GET':
         form.username.data = user.username
         form.email.data = user.email
-        form.role.data = user.role
-    return render_template('create_user.html', title='Update User', form=form, legend='Update User')
+        print(f"User = { user.username }")
+        print(f"EMAIL = { user.email }")
+        
+    return render_template('admin_update_user.html', title='Update User', form=form, legend='Update User')
 
 @main.route("/admin/user/<int:user_id>/delete", methods=['POST'])
 @login_required

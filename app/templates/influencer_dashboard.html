@@ -23,7 +23,8 @@
         <th>Requirements</th>
         <th>Payment Amount</th>
         <th>Status</th>
-        <th>Negotiate Amount</th>
+        <th>Counter Amount</th>
+        <th>Action</th>
     </tr>
     {% for ad_request in ad_requests %}
     <tr>
@@ -36,6 +37,12 @@
                 Negotiating (Proposed: {{ ad_request.proposed_amount }})
             {% else %}
                 {{ ad_request.status }}
+            {% endif %}
+        </td>
+        <td>
+            {% if ad_request.counter_amount %}
+                {{ ad_request.counter_amount }} 
+            {% else %}
             {% endif %}
         </td>
         <td>
