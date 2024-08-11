@@ -3,6 +3,12 @@
 {% block content %}
 <h1>Sponsor Dashboard</h1>
 <a href="{{ url_for('main.sponsor_profile') }}">Update Profile</a>
+<form method="POST" action="{{ url_for('export_csv') }}">
+    <input type="hidden" name="sponsor_id" value="{{ current_user.id }}">
+    <button type="submit" class="btn btn-primary">Download CSV</button>
+</form>
+
+
 
 <h2>Search Campaigns</h2>
 <form method="POST" action="{{ url_for('main.sponsor_dashboard') }}">

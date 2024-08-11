@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify,url_for,request,redirect
 from app import create_app,make_celery
 from tasks import *
 app = create_app()
@@ -39,6 +39,11 @@ def send_monthly_report():
     #     print(f"Report sent to {sponsor.email}")
     #     print(f"Report: \n{msg}")
 
+
+@celery.task(name="app.export_campaigns_csv")
+def export_campaigns_csv(sponsor_id):
+    return export_campaigns(sponsor_id)
+
 @app.route('/daily-reminder-task')
 def daily_reminder_task():
     send_daily_reminder()
@@ -50,6 +55,27 @@ def monthly_report_task():
     return jsonify({"status": "Task completed"})
 
 
+# @app.route('/export-csv', methods=['POST'])
+@app.route("/export-csv", methods=['POST'])
+def export_csv():
+    sponsor_id = request.form.get('sponsor_id')
+    if not sponsor_id:
+        return jsonify({"error": "Sponsor ID is required"}), 400
+
+    result = export_campaigns_csv(sponsor_id)
+
+    if result:
+        return result
+    else:
+        return jsonify({"error": "Sponsor not found"}), 404
+ 
+@app.route('/task-status/<task_id>')
+def check_task_status(task_id):
+    task = export_campaigns_csv.AsyncResult(task_id)
+    status = task.status
+    result = task.result if status == 'SUCCESS' else None
+
+    return jsonify({"status": status, "result": result})
 
 
 if __name__ == '__main__':

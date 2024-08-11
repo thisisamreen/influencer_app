@@ -2,8 +2,10 @@ from datetime import datetime, timedelta
 from app.models import *
 from flask_mail import Message
 from app import mail
-from flask import render_template_string
+from flask import render_template_string,make_response
 import random
+from io import StringIO
+import csv
 
 def get_influencers_with_pending_requests():
     visit_threshold = datetime.utcnow() - timedelta(days=1)
@@ -80,4 +82,52 @@ def simulate_sales_growth(campaign):
 
 def calculate_remaining_budget(campaign):
     return random.uniform(1000, campaign.budget)
+
+
+
+
+def export_campaigns(sponsor_id):
+    sponsor = User.query.get(sponsor_id)
+    print(f"sponsor : {sponsor}")
+    if not sponsor:
+        return None
+    
+    campaigns = sponsor.campaigns
+
+    # Create a CSV in memory
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Campaign Name', 'Description', 'Start Date', 'End Date', 'Budget', 'Visibility', 'Goals'])
+
+    for campaign in campaigns:
+        writer.writerow([
+            campaign.name,
+            campaign.description,
+            campaign.start_date,
+            campaign.end_date,
+            round(campaign.budget, 2),
+            campaign.visibility,
+            campaign.goals
+        ])
+
+    output.seek(0)
+    csv_content = output.getvalue()
+    output.close()
+
+    # Send the CSV file as an email attachment
+    # msg = Message(
+    #     subject=f"Campaigns CSV Export - {sponsor.company_name}",
+    #     recipients=[sponsor.email],
+    #     body="Please find the attached CSV file containing the details of your campaigns.",
+    # )
+    # msg.attach(f"campaigns_{sponsor_id}.csv", "text/csv", csv_content)
+
+    # mail.send(msg)
+    # print(f"CSV export sent to {sponsor.email}")
+    # Create a Flask response object to download the CSV
+    response = make_response(csv_content)
+    print(f"response : {response}")
+    response.headers["Content-Disposition"] = f"attachment; filename=campaigns_{sponsor_id}.csv"
+    response.headers["Content-Type"] = "text/csv"
+    return response
 
