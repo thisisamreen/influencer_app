@@ -56,21 +56,24 @@ with app.app_context():
         name='Influencer One',
         category='Fitness',
         niche='Yoga',
-        reach=10000
+        reach=10000,
+        last_visited = datetime.date(2024,8,1)
     )
 
     influencer2 = User(
         username='influencer2',
         email='influencer2@example.com',
         password=bcrypt.generate_password_hash('influencer2').decode('utf-8'),
-        role='influencer'
+        role='influencer',
+        
     )
     influencer2_profile = InfluencerProfile(
         user=influencer2,
         name='Influencer Two',
         category='Tech',
         niche='Gadgets',
-        reach=20000
+        reach=20000,
+        last_visited = datetime.date(2024,8,3)
     )
 
     influencer3 = User(
@@ -84,7 +87,8 @@ with app.app_context():
         name='Influencer Three',
         category='Food',
         niche='Vegan Recipes',
-        reach=15000
+        reach=15000,
+        last_visited = datetime.date(2024,8,11)
     )
 
     db.session.add(influencer1)

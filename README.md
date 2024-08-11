@@ -10,4 +10,6 @@
 
 - Run the application on http://127.0.0.1:5000
 
-
+- Start the celery beat:
+    `celery -A run.celery worker --loglevel=info`
+    `celery -A run.celery beat --loglevel=info`

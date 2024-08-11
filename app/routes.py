@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, url_for, flash, redirect, request
+from flask import Blueprint, render_template, url_for, flash, redirect, request,jsonify
 from flask_login import login_user, current_user, logout_user, login_required
 from app import db, bcrypt
 from app.forms import *
 from app.models import *
 from functools import wraps
-
+# from tasks import send_daily_reminder
 main = Blueprint('main', __name__)
 
 # Decorator to restrict access to admins only
@@ -42,8 +42,8 @@ def home():
 
 
 
-@main.route("/register", methods=['GET', 'POST'])
-def register():
+# @main.route("/register", methods=['GET', 'POST'])
+# def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
@@ -54,8 +54,8 @@ def register():
         return redirect(url_for('main.login'))
     return render_template('register.html', title='Register', form=form)
 
-@main.route("/login", methods=['GET', 'POST'])
-def login():
+# @main.route("/login", methods=['GET', 'POST'])
+# def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     form = LoginForm()
@@ -307,38 +307,6 @@ def view_ad_requests():
     ad_requests = AdRequest.query.join(Campaign).filter(Campaign.sponsor_id == current_user.id).all()
     return render_template('view_ad_requests.html', ad_requests=ad_requests)
 
-# @main.route("/sponsor/ad_request/respond/<int:ad_request_id>", methods=['POST'])
-# @login_required
-# @sponsor_required
-# def respond_to_proposal(ad_request_id):
-#     ad_request = AdRequest.query.get_or_404(ad_request_id)
-    
-#     if ad_request.campaign.sponsor_id != current_user.id:
-#         flash('You do not have permission to respond to this proposal.', 'danger')
-#         return redirect(url_for('main.sponsor_dashboard'))
-#     print(request)
-#     action = request.form.get('action')
-#     if action == 'accept':
-#         ad_request.payment_amount = ad_request.counter_amount
-#         ad_request.status = 'Approved'
-#         ad_request.negotiation_status = 'Closed'
-#         flash('The proposal has been accepted!', 'success')
-#     elif action == 'reject':
-#         print(action)
-#         ad_request.status = 'Rejected'
-#         ad_request.negotiation_status = 'Closed'
-#         flash('The proposal has been rejected.', 'danger')
-#     elif action == 'Negotiate':
-#         print(f"action is counter")
-#         proposed_amount = request.form.get('proposed_amount')
-#         print(f"the counter is :{proposed_amount}")
-#         ad_request.proposed_amount = float(proposed_amount)
-#         ad_request.status = 'Negotiating'
-#         ad_request.negotiation_status = 'Open'
-#         flash('A counter proposal has been submitted!', 'info')
-    
-#     db.session.commit()
-#     return redirect(url_for('main.sponsor_dashboard'))
 
 @main.route("/sponsor/ad_request/respond/<int:ad_request_id>", methods=['POST'])
 @login_required
@@ -380,6 +348,7 @@ def influencer_dashboard():
         flash('You do not have access to this page.', 'danger')
         return redirect(url_for('main.home'))
     ad_requests = AdRequest.query.filter_by(influencer_id=current_user.id).all()
+    print(f"The influencer {current_user.profile.name} has ad requests:\n{ad_requests[0].status}")
     profile = current_user.profile
     campaign_search_form = CampaignSearchForm()
 
@@ -961,3 +930,101 @@ def admin_search():
 
     return render_template('admin_search_results.html', results=results)
 
+#Version 2
+
+@main.route("/register_sponsor", methods=['GET', 'POST'])
+def register_sponsor():
+    form = SponsorRegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password, role='sponsor',is_approved=False)
+        db.session.add(user)
+        db.session.commit()
+        flash('Account created for sponsor! Please wait for admin approval.', 'success')
+        return redirect(url_for('main.login'))
+    return render_template('register.html', title='Register Sponsor', form=form)
+
+
+@main.route("/register_influencer", methods=['GET', 'POST'])
+def register_influencer():
+    form = InfluencerRegistrationForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password, role='influencer')
+        db.session.add(user)
+        db.session.commit()
+        flash('Account created for influencer!', 'success')
+        return redirect(url_for('main.login'))
+    return render_template('register.html', title='Register Influencer', form=form)
+
+@main.route("/admin/pending_approvals", methods=['GET'])
+@login_required
+def pending_approvals():
+    if current_user.role != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.home'))
+    pending_sponsors = User.query.filter_by(role='sponsor', is_approved=False).all()
+    return render_template('pending_approvals.html', sponsors=pending_sponsors)
+
+@main.route("/admin/approve_sponsor/<int:sponsor_id>", methods=['POST'])
+@login_required
+def approve_sponsor(sponsor_id):
+    if current_user.role != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.home'))
+    sponsor = User.query.get_or_404(sponsor_id)
+    if sponsor.role == 'sponsor':
+        sponsor.is_approved = True
+        db.session.commit()
+        flash('Sponsor approved successfully.', 'success')
+    return redirect(url_for('main.pending_approvals'))
+
+@main.route("/admin/reject_sponsor/<int:sponsor_id>", methods=['POST'])
+@login_required
+def reject_sponsor(sponsor_id):
+    if current_user.role != 'admin':
+        flash('Unauthorized access.', 'danger')
+        return redirect(url_for('main.home'))
+    sponsor = User.query.get_or_404(sponsor_id)
+    if sponsor.role == 'sponsor':
+        db.session.delete(sponsor)
+        db.session.commit()
+        flash('Sponsor rejected and deleted successfully.', 'success')
+    return redirect(url_for('main.pending_approvals'))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+@main.route("/login", methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.home'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and bcrypt.check_password_hash(user.password, form.password.data):
+            if user.role == 'sponsor' and not user.is_approved:
+                flash('Account pending approval. Please wait for admin approval.', 'warning')
+                return redirect(url_for('main.login'))
+            login_user(user, remember=form.remember.data)
+            next_page = request.args.get('next')
+            if next_page:
+                return redirect(next_page)
+            elif user.role == 'admin':
+                return redirect(url_for('main.admin_dashboard'))
+            elif user.role == 'sponsor':
+                return redirect(url_for('main.sponsor_dashboard'))
+            elif user.role == 'influencer':
+                return redirect(url_for('main.influencer_dashboard'))
+            else:
+                return redirect(url_for('main.home'))
+            # return redirect(next_page) if next_page else redirect(url_for('main.home'))
+        else:
+            flash('Login unsuccessful. Please check email and password', 'danger')
+    return render_template('login.html', title='Login', form=form)
+
+# @main.route('/start-task')
+# def start_task():
+#     result = send_daily_reminder.apply_async()
+#     return jsonify({"task_id": result.id})

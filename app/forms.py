@@ -3,26 +3,26 @@ from wtforms import StringField, PasswordField, SubmitField, SelectField,Boolean
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from app.models import User
 
-class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    role = SelectField('Role', choices=[ ('sponsor', 'Sponsor'), ('influencer', 'Influencer')], validators=[DataRequired()])
-    submit = SubmitField('Sign Up')
+# class RegistrationForm(FlaskForm):
+#     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+#     email = StringField('Email', validators=[DataRequired(), Email()])
+#     password = PasswordField('Password', validators=[DataRequired()])
+#     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+#     role = SelectField('Role', choices=[ ('sponsor', 'Sponsor'), ('influencer', 'Influencer')], validators=[DataRequired()])
+#     submit = SubmitField('Sign Up')
 
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('That username is taken. Please choose a different one.')
+#     def validate_username(self, username):
+#         user = User.query.filter_by(username=username.data).first()
+#         if user:
+#             raise ValidationError('That username is taken. Please choose a different one.')
 
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('That email is taken. Please choose a different one.')
-    def validate_role(self, role):
-        if role.data == 'admin':
-            raise ValidationError('You cannot register as an admin.')
+#     def validate_email(self, email):
+#         user = User.query.filter_by(email=email.data).first()
+#         if user:
+#             raise ValidationError('That email is taken. Please choose a different one.')
+#     def validate_role(self, role):
+#         if role.data == 'admin':
+#             raise ValidationError('You cannot register as an admin.')
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -131,4 +131,38 @@ class CreateCampaignForm(FlaskForm):
     goals = TextAreaField('Goals', validators=[DataRequired()])
 
 
+#Version 2
 
+class SponsorRegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Sign Up')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('That username is taken. Please choose a different one.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('That email is taken. Please choose a different one.')
+
+class InfluencerRegistrationForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Sign Up')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('That username is taken. Please choose a different one.')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('That email is taken. Please choose a different one.')

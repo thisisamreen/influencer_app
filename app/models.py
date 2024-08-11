@@ -1,3 +1,4 @@
+from datetime import datetime
 from app import db, login_manager
 from flask_login import UserMixin
 
@@ -22,7 +23,7 @@ class User(db.Model,UserMixin):
     ad_requests = db.relationship('AdRequest', foreign_keys='AdRequest.influencer_id', back_populates='influencer', lazy=True)
     profile = db.relationship('InfluencerProfile', uselist=False, back_populates='user')
     is_flagged = db.Column(db.Boolean, default=False)
-
+    is_approved = db.Column(db.Boolean, default=False)
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
@@ -67,6 +68,8 @@ class InfluencerProfile(db.Model):
     category = db.Column(db.String(100),)
     niche = db.Column(db.String(100), )
     reach = db.Column(db.Integer,)
+    last_visited = db.Column(db.DateTime,  default=datetime.utcnow)
+
     # Backreference for the user
     user = db.relationship('User', back_populates='profile')
 
