@@ -40,7 +40,6 @@ def send_monthly_report():
     #     print(f"Report: \n{msg}")
 
 
-@celery.task(name="app.export_campaigns_csv")
 def export_campaigns_csv(sponsor_id):
     return export_campaigns(sponsor_id)
 
@@ -55,7 +54,6 @@ def monthly_report_task():
     return jsonify({"status": "Task completed"})
 
 
-# @app.route('/export-csv', methods=['POST'])
 @app.route("/export-csv", methods=['POST'])
 def export_csv():
     sponsor_id = request.form.get('sponsor_id')

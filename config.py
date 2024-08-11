@@ -11,18 +11,17 @@ class Config:
     CELERY_BEAT_SCHEDULE = {
         'send-daily-reminders': {
             'task': 'app.send_daily_reminder',
-            'schedule': 60.0 *3 ,# Run every 24 hours* 60.0 * 24.0, 
+            'schedule': 60.0 *60.0 * 24.0,# Run every 24 hours* 
             'options': {
-                'expires': 60.0*4  # Task expires if not run within 24 hours  * 60.0 * 24.0
+                'expires': 60.0*60.0 * 24.0,  # Task expires if not run within 24 hours  * 60.0 * 24.0
             }
         },
         'send-monthly-reports': {
             'task': 'app.send_monthly_report',
-            'schedule':crontab(minute='*/3'),     #crontab(day_of_month=1, hour=0, minute=0),
+            'schedule':crontab(day_of_month=1, hour=0, minute=0),    
             'options': {
-                'expires': 60.0 * 5},  #60.0 * 60.0 * 24.0 
-            # 'args': ()  # Arguments should include the sponsor_id, can be managed dynamically
-        },
+                'expires': 60.0 * 60.0 * 24.0}, 
+            },
 
     }
     CELERY_TIMEZONE = 'UTC'
