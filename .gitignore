@@ -1,2 +1,3 @@
 influencer_env/
 instance/app.db
+.env

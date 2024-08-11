@@ -1,5 +1,8 @@
 import os
+from dotenv import load_dotenv
+from celery.schedules import crontab
 
+load_dotenv()
 class Config:
     SECRET_KEY = 'my_secret_key'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'instance', 'app.db')
@@ -13,10 +16,25 @@ class Config:
                 'expires': 60.0*4  # Task expires if not run within 24 hours  * 60.0 * 24.0
             }
         },
+        'send-monthly-reports': {
+            'task': 'app.send_monthly_report',
+            'schedule':crontab(minute='*/3'),     #crontab(day_of_month=1, hour=0, minute=0),
+            'options': {
+                'expires': 60.0 * 5},  #60.0 * 60.0 * 24.0 
+            # 'args': ()  # Arguments should include the sponsor_id, can be managed dynamically
+        },
+
     }
     CELERY_TIMEZONE = 'UTC'
     MAIL_SERVER = 'smtp.googlemail.com'
     MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    # MAIL_USERNAME = os.environ.get('EMAIL_USER')
-    # MAIL_PASSWORD = os.environ.get('EMAIL_PASS')
+    MAIL_USE_TLS = False
+    MAIL_USERNAME = os.getenv('EMAIL_USER')
+    MAIL_PASSWORD = os.getenv('EMAIL_PASS')
+    MAIL_SERVER = 'localhost'
+    MAIL_PORT = 1025
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER') 
+    print(f"EMAIL  USER= {MAIL_USERNAME}")
+    print(f"EMAIL  PASS= {MAIL_PASSWORD}")
+    print(f"EMAIL  = {MAIL_DEFAULT_SENDER}")
+    print(f"RECIPIENTS MAIL :{os.getenv("RECIPIENTS_EMAIL")}")

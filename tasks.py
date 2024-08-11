@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
-# from celery import Celery, Task
-from app.models import InfluencerProfile, AdRequest
-# from app import celery  
-
-
-
+from app.models import *
+from flask_mail import Message
+from app import mail
+from flask import render_template_string
+import random
 
 def get_influencers_with_pending_requests():
     visit_threshold = datetime.utcnow() - timedelta(days=1)
@@ -28,7 +27,57 @@ def get_influencers_with_pending_requests():
     return influencers_to_remind
 
 
-def send_reminder(influencer):
-    # print(f"Sending mail to {influencer}")
-    print(f"Sending mail to {influencer.name}")
+
+def send_reminder_email(influencer):
+    msg = Message('Reminder: Pending Ad Requests', 
+                  recipients=[influencer.user.email])
+    msg.body = f"Hi {influencer.name},\n\nYou have pending ad requests that need your attention. \nPlease visit the platform to review and take action.\n\nBest regards,\nAdmin"
+    mail.send(msg)
+    print(f"EMAIL sent!")
+    print(f"msg : \n{msg}")
+
+
+
+def generate_monthly_report(sponsor):
+    campaigns = Campaign.query.filter_by(sponsor_id=sponsor.id).all()
+
+    report_data = []
+    for campaign in campaigns:
+        num_ads = AdRequest.query.filter_by(campaign_id=campaign.id).count()
+        sales_growth = simulate_sales_growth(campaign)  # Replace this with actual logic if available
+        budget_used = round(campaign.budget - calculate_remaining_budget(campaign),2)
+        
+        report_data.append({
+            "name": campaign.name,
+            "description": campaign.description,
+            "num_ads": num_ads,
+            "sales_growth": sales_growth,
+            "budget_used": budget_used,
+            "budget_remaining": round(campaign.budget - budget_used,2)
+        })
+    
+    html_report = render_template_string("""
+    <html>
+        <body>
+            <h1>Monthly Activity Report for {{ sponsor.company_name }}</h1>
+            <p>Date: {{ date.strftime('%Y-%m-%d') }}</p>
+            {% for campaign in report_data %}
+                <h2>{{ campaign.name }}</h2>
+                <p>{{ campaign.description }}</p>
+                <p>Number of Ads: {{ campaign.num_ads }}</p>
+                <p>Growth in Sales: {{ campaign.sales_growth }}%</p>
+                <p>Budget Used: ₹{{ campaign.budget_used }}</p>
+                <p>Remaining Budget: ₹{{ campaign.budget_remaining }}</p>
+            {% endfor %}
+        </body>
+    </html>
+    """, sponsor=sponsor, date=datetime.utcnow(), report_data=report_data)
+
+    return html_report
+
+def simulate_sales_growth(campaign):
+    return round(random.uniform(5, 20), 2)
+
+def calculate_remaining_budget(campaign):
+    return random.uniform(1000, campaign.budget)
 
