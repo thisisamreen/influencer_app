@@ -1,9 +1,29 @@
+ 
 {% extends "layout.html" %}
 {% block content %}
-<div class="content-section">
-    <h1>Welcome to the Influencer Engagement and Sponsorship Coordination Platform</h1>
-    <p class="lead">This is a platform to connect Sponsors and Influencers so that sponsors can get their product/service advertised and influencers can get monetary benefit.</p>
+<div id="app" class="content-section">
+    <h1>{{ "Welcome to the Influencer Engagement and Sponsorship Coordination Platform" }}</h1>
+    <p class="lead">{{ description }}</p>
     <hr>
-    <p>New here? <a href="{{ url_for('main.register_sponsor') }}">Sign Up as Sponsor</a> or <a href="{{ url_for('main.register_influencer') }}">Sign Up as Influencer</a>. Already have an account? <a href="{{ url_for('main.login') }}">Log In</a>.</p>
+    <p>New here? 
+        <a v-bind:href="registerSponsorUrl">Sign Up as Sponsor</a> 
+        or 
+        <a v-bind:href="registerInfluencerUrl">Sign Up as Influencer</a>. 
+        Already have an account? 
+        <a v-bind:href="loginUrl">Log In</a>.
+    </p>
 </div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            message: 'Welcome to the Influencer Engagement and Sponsorship Coordination Platform',
+            description: 'This is a platform to connect Sponsors and Influencers so that sponsors can get their product/service advertised and influencers can get monetary benefit.',
+            registerSponsorUrl: "{{ url_for('main.register_sponsor') }}",
+            registerInfluencerUrl: "{{ url_for('main.register_influencer') }}",
+            loginUrl: "{{ url_for('main.login') }}"
+        }
+    });
+</script>
 {% endblock %}

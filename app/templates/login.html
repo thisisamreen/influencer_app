@@ -1,26 +1,31 @@
 {% extends "layout.html" %}
+
 {% block content %}
 <div class="content-section">
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Login</legend>
+    <div id="login-app">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Login</legend>
+                <div class="form-group">
+                    {{ form.email.label(class="form-control-label") }}
+                    <!-- Vue.js is bound to the input here -->
+                    <input type="email" v-model="email" class="form-control form-control-lg" name="email" required>
+                </div>
+                <div class="form-group">
+                    {{ form.password.label(class="form-control-label") }}
+                    <!-- Vue.js is bound to the input here -->
+                    <input type="password" v-model="password" class="form-control form-control-lg" name="password" required>
+                </div>
+                <div class="form-group">
+                    {{ form.remember(class="form-check-input") }} {{ form.remember.label(class="form-check-label") }}
+                </div>
+            </fieldset>
             <div class="form-group">
-                {{ form.email.label(class="form-control-label") }}
-                {{ form.email(class="form-control form-control-lg") }}
+                {{ form.submit(class="btn btn-outline-info") }}
             </div>
-            <div class="form-group">
-                {{ form.password.label(class="form-control-label") }}
-                {{ form.password(class="form-control form-control-lg") }}
-            </div>
-            <div class="form-group">
-                {{ form.remember(class="form-check-input") }} {{ form.remember.label(class="form-check-label") }}
-            </div>
-        </fieldset>
-        <div class="form-group">
-            {{ form.submit(class="btn btn-outline-info") }}
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 <div class="border-top pt-3">
     <p>New here? 
@@ -30,4 +35,16 @@
         if you already have an account, <a href="{{ url_for('main.login') }}">Log In</a>.
     </p>
 </div>
+
+<!-- Vue.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script>
+    new Vue({
+        el: '#login-app',
+        data: {
+            email: '',
+            password: ''
+        }
+    });
+</script>
 {% endblock %}
